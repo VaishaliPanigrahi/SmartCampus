@@ -2,7 +2,6 @@ import { ArrowRight, BarChart3, BrainCircuit, Check, ChevronRight, FileText, Men
 import { useEffect, useState } from 'react'
 import Applications from './pages/Applications'
 import CandidateRanking from './pages/CandidateRanking'
-import Evaluation from './pages/Evaluation'
 import JobDetails from './pages/JobDetails'
 import LoginPage from './pages/LoginPage'
 import PostJob from './pages/PostJob'
@@ -70,7 +69,6 @@ function App() {
   if (route === '/recruiter/dashboard') return <RecruiterDashboard onLogout={goHome} />
   if (route === '/recruiter/post-job') return <PostJob onBack={() => goTo('/recruiter/dashboard')} onNavigate={goTo} onLogout={goHome} />
   if (route.startsWith('/recruiter/jobs/') && route.endsWith('/candidates')) return <CandidateRanking jobId={route.split('/')[3]} onBack={() => goTo('/recruiter/dashboard')} onLogout={goHome} />
-  if (route === '/research/evaluation') return <Evaluation onBack={goHome} onLogout={goHome} />
 
   return <LandingPage menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 }
@@ -81,7 +79,7 @@ function LandingPage({ menuOpen, setMenuOpen }) {
     <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
       <a className="flex items-center gap-3" href="#top" aria-label="Smart Campus home"><span className="grid h-10 w-10 place-items-center rounded-xl bg-ink text-lime shadow-lg shadow-ink/15"><BrainCircuit size={21} strokeWidth={2.5} /></span><span className="font-display text-lg font-bold tracking-tight">Smart Campus<span className="text-coral">.</span></span></a>
       <button className="rounded-lg border border-ink/15 p-2 md:hidden" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle navigation">{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
-      <div className={`${menuOpen ? 'absolute left-6 right-6 top-20 flex' : 'hidden'} flex-col gap-5 rounded-2xl border border-ink/10 bg-paper p-5 shadow-xl md:static md:flex md:flex-row md:items-center md:gap-8 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}><a className="nav-link-light" href="#method">The method</a><a className="nav-link-light" href="#flow">How it works</a><a className="nav-link-light" href="/research/evaluation">Research</a><a className="nav-link-light" href="/login">Log in</a><a className="button-dark" href="/register">Get started <ArrowRight size={16} /></a></div>
+      <div className={`${menuOpen ? 'absolute left-6 right-6 top-20 flex' : 'hidden'} flex-col gap-5 rounded-2xl border border-ink/10 bg-paper p-5 shadow-xl md:static md:flex md:flex-row md:items-center md:gap-8 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}><a className="nav-link-light" href="#method">The method</a><a className="nav-link-light" href="#flow">How it works</a><a className="nav-link-light" href="/login">Log in</a><a className="button-dark" href="/register">Get started <ArrowRight size={16} /></a></div>
     </nav>
 
     <section id="top" className="relative mx-auto grid max-w-7xl gap-14 px-6 pb-24 pt-14 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:px-10 lg:pb-28 lg:pt-20">

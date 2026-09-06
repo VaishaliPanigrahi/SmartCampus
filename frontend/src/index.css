@@ -39,3 +39,9 @@ body { margin: 0; min-width: 320px; }
   .role-panel-coral { @apply bg-coral; }
   .role-number { @apply font-display text-sm font-bold text-gray-600; }
 }
+
+main.bg-ink > section.mx-auto { max-width: 80rem !important; }
+
+.button-primary, .button-secondary, .button-dark, .button-outline { min-height: 42px; white-space: nowrap; }
+
+main.bg-ink > section.mx-auto > .button-secondary + .eyebrow { margin-left: 1rem; vertical-align: middle; }

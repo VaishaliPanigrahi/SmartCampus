@@ -20,6 +20,7 @@ Phase 10 provides:
 - Protected student profile read and update endpoints
 - Student profile form at `/student/profile`
 - PDF resume upload and text extraction with PyMuPDF
+- ATS-style resume analysis with profile keyword and section checks
 - Resume analysis page at `/student/resume`
 - Eligibility filtering by CGPA, department, and graduation year
 - TF-IDF and cosine similarity matching
@@ -33,7 +34,6 @@ Phase 10 provides:
 - Eligibility-first candidate ranking
 - Database-backed student dashboard at `/student/dashboard`
 - MySQL CSV import utility for Google Forms exports
-- Research evaluation page at `/research/evaluation`
 - Client-side role guards for student and recruiter routes
 - Research navigation from the landing page
 
@@ -166,7 +166,7 @@ Application data is read from and written to MySQL through Flask APIs. Registrat
 
 Recruiters can shortlist an applicant from the candidate ranking page. The action updates the MySQL application status to `Shortlisted`, and the student sees that status in the Applications page.
 
-## CSV Import and Evaluation
+## CSV Import
 
 Import cleaned student and job CSV files into MySQL:
 
@@ -174,4 +174,3 @@ Import cleaned student and job CSV files into MySQL:
 .\.venv\Scripts\python.exe backend\import_data.py path\to\students.csv path\to\jobs.csv
 ```
 
-For model evaluation, copy `research\labelled_matches.example.csv` to `research\labelled_matches.csv` and replace it with manually labelled pairs. The required columns are `student_id`, `job_id`, and `label`. Without that file, `/api/research/evaluation` and `/research/evaluation` explicitly report that labelled data is required.

@@ -9,12 +9,12 @@ from werkzeug.utils import secure_filename
 try:
     from ..database import get_connection
     from ..ml.eligibility import check_eligibility
-    from ..resume_parser import extract_text_from_pdf
+    from ..resume_parser import analyze_resume, extract_text_from_pdf
     from .auth_routes import require_auth
 except ImportError:
     from database import get_connection
     from ml.eligibility import check_eligibility
-    from resume_parser import extract_text_from_pdf
+    from resume_parser import analyze_resume, extract_text_from_pdf
     from routes.auth_routes import require_auth
 
 
@@ -139,7 +139,7 @@ def update_profile():
 def get_resume():
     with get_connection() as connection:
         student = connection.execute(
-            'SELECT resume_path, resume_text FROM students WHERE id = ?',
+            'SELECT * FROM students WHERE id = ?',
             (g.current_user['user_id'],),
         ).fetchone()
 
@@ -154,6 +154,7 @@ def get_resume():
             'filename': Path(student['resume_path']).name,
             'text': student['resume_text'] or '',
             'character_count': len(student['resume_text'] or ''),
+            'analysis': analyze_resume(student['resume_text'] or '', student),
         },
     })
 
@@ -191,6 +192,11 @@ def upload_resume():
         )
         connection.commit()
 
+        student = connection.execute(
+            'SELECT * FROM students WHERE id = ?',
+            (g.current_user['user_id'],),
+        ).fetchone()
+
     return jsonify({
         'message': 'Resume uploaded and analyzed successfully.',
         'resume': {
@@ -198,5 +204,6 @@ def upload_resume():
             'filename': safe_name,
             'text': extracted_text,
             'character_count': len(extracted_text),
+            'analysis': analyze_resume(extracted_text, student),
         },
     }), 201

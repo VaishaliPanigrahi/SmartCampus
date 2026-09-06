@@ -122,11 +122,17 @@ def register():
                     return jsonify({'error': 'CGPA must be between 0 and 10.'}), 400
                 cursor = connection.execute(
                     """
-                    INSERT INTO students (student_id, name, email, password, department, cgpa, graduation_year)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO students (
+                        student_id, name, email, password, department, cgpa, graduation_year,
+                        skills, programming_languages, projects, certifications,
+                        preferred_role, preferred_location
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (payload['student_id'].strip(), payload['name'].strip(), payload['email'].strip().lower(),
-                     generate_password_hash(payload['password']), payload['department'].strip(), cgpa, graduation_year),
+                     generate_password_hash(payload['password']), payload['department'].strip(), cgpa, graduation_year,
+                     str(payload.get('skills', '')).strip(), str(payload.get('programming_languages', '')).strip(),
+                     str(payload.get('projects', '')).strip(), str(payload.get('certifications', '')).strip(),
+                     str(payload.get('preferred_role', '')).strip(), str(payload.get('preferred_location', '')).strip()),
                 )
                 user = connection.execute('SELECT * FROM students WHERE id = ?', (cursor.lastrowid,)).fetchone()
             else:
