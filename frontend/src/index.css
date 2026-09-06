@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { font-family: 'DM Sans', sans-serif; color: #f8fafc; background: #10121b; font-synthesis: none; text-rendering: optimizeLegibility; }
+html { scroll-behavior: smooth; }
+body { margin: 0; min-width: 320px; }
+@layer utilities {
+  .bg-paper { background-color: #f3f0e9; }
+  .bg-ink { background-color: #10121b; }
+  .bg-ink-deep { background-color: #151824; }
+  .bg-panel { background-color: #1a1d2b; }
+  .bg-panel-deep { background-color: #151824; }
+  .bg-lime { background-color: #ccff5c; }
+  .bg-coral { background-color: #ff7869; }
+  .text-paper { color: #f3f0e9; }
+  .text-ink { color: #10121b; }
+  .text-lime { color: #ccff5c; }
+  .text-coral { color: #ff7869; }
+  .bg-violet { background-color: #806cff; }
+  .border-ink { border-color: #10121b; }
+}
+@layer components {
+  .nav-link { @apply text-sm text-white/60 transition hover:text-white; }
+  .nav-link-light { @apply text-sm font-medium text-gray-600 transition hover:text-gray-900; }
+  .button-primary { @apply inline-flex items-center justify-center gap-2 rounded-lg bg-lime px-4 py-2.5 text-sm font-bold text-ink transition hover:-translate-y-0.5 hover:shadow-lg; }
+  .button-dark { @apply inline-flex items-center justify-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-coral; }
+  .button-outline { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 text-sm font-bold text-ink transition hover:border-gray-600 hover:bg-gray-100; }
+  .button-secondary { @apply inline-flex items-center justify-center rounded-lg border border-white/15 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5; }
+  .field { @apply w-full rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-white/30 focus:ring-2 focus:ring-white/10; }
+  .eyebrow { @apply inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-lime; }
+  .eyebrow-dark { @apply inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-ink; }
+  .marker { @apply relative inline-block; }
+  .marker::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0.03em; z-index: -1; height: 0.25em; background: #ccff5c; transform: rotate(-1deg); }
+  .grid-lines { background-image: linear-gradient(to right, rgba(16,18,27,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(16,18,27,0.06) 1px, transparent 1px); background-size: 42px 42px; }
+  .pulse-dot { @apply h-2 w-2 rounded-full bg-coral; box-shadow: 0 0 0 5px rgba(255,120,105,0.14); }
+  .role-panel { @apply block min-h-[300px] rounded-2xl border border-gray-300 bg-lime p-7 transition hover:-translate-y-1 hover:shadow-xl sm:p-9; }
+  .role-panel-coral { @apply bg-coral; }
+  .role-number { @apply font-display text-sm font-bold text-gray-600; }
+}
