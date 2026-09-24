@@ -1,47 +1,96 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root { font-family: 'DM Sans', sans-serif; color: #f8fafc; background: #10121b; font-synthesis: none; text-rendering: optimizeLegibility; }
+:root {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #0f172a;
+  background: #eef2f7;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
 html { scroll-behavior: smooth; }
 body { margin: 0; min-width: 320px; }
-@layer utilities {
-  .bg-paper { background-color: #f3f0e9; }
-  .bg-ink { background-color: #10121b; }
-  .bg-ink-deep { background-color: #151824; }
-  .bg-panel { background-color: #1a1d2b; }
-  .bg-panel-deep { background-color: #151824; }
-  .bg-lime { background-color: #ccff5c; }
-  .bg-coral { background-color: #ff7869; }
-  .text-paper { color: #f3f0e9; }
-  .text-ink { color: #10121b; }
-  .text-lime { color: #ccff5c; }
-  .text-coral { color: #ff7869; }
-  .bg-violet { background-color: #806cff; }
-  .border-ink { border-color: #10121b; }
-}
+
 @layer components {
-  .nav-link { @apply text-sm text-white/60 transition hover:text-white; }
-  .nav-link-light { @apply text-sm font-medium text-gray-600 transition hover:text-gray-900; }
-  .button-primary { @apply inline-flex items-center justify-center gap-2 rounded-lg bg-lime px-4 py-2.5 text-sm font-bold text-ink transition hover:-translate-y-0.5 hover:shadow-lg; }
-  .button-dark { @apply inline-flex items-center justify-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-coral; }
-  .button-outline { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 text-sm font-bold text-ink transition hover:border-gray-600 hover:bg-gray-100; }
-  .button-secondary { @apply inline-flex items-center justify-center rounded-lg border border-white/15 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5; }
-  .field { @apply w-full rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-white/30 focus:ring-2 focus:ring-white/10; }
-  .eyebrow { @apply inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-lime; }
-  .eyebrow-dark { @apply inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-ink; }
-  .marker { @apply relative inline-block; }
-  .marker::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0.03em; z-index: -1; height: 0.25em; background: #ccff5c; transform: rotate(-1deg); }
-  .grid-lines { background-image: linear-gradient(to right, rgba(16,18,27,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(16,18,27,0.06) 1px, transparent 1px); background-size: 42px 42px; }
-  .pulse-dot { @apply h-2 w-2 rounded-full bg-coral; box-shadow: 0 0 0 5px rgba(255,120,105,0.14); }
-  .role-panel { @apply block min-h-[300px] rounded-2xl border border-gray-300 bg-lime p-7 transition hover:-translate-y-1 hover:shadow-xl sm:p-9; }
-  .role-panel-coral { @apply bg-coral; }
-  .role-number { @apply font-display text-sm font-bold text-gray-600; }
+  .nav-link {
+    @apply text-sm font-medium text-slate-300 transition hover:text-white;
+  }
+  .nav-link-light {
+    @apply text-sm font-medium text-slate-600 transition hover:text-navy;
+  }
+  .button-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-teal px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-600 hover:shadow-md;
+  }
+  .button-dark {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-navy px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-800;
+  }
+  .button-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white text-sm font-semibold text-navy transition hover:border-navy/30 hover:bg-slate-50;
+  }
+  .button-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/5 text-sm font-semibold text-white transition hover:border-white/25 hover:bg-white/10;
+  }
+  .button-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50;
+  }
+  .field {
+    @apply w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-ink outline-none transition placeholder:text-slate-400 focus:border-teal focus:ring-2 focus:ring-teal/20;
+  }
+  .field-dark {
+    @apply w-full rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-teal/60 focus:ring-2 focus:ring-teal/20;
+  }
+  .eyebrow {
+    @apply inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-teal;
+  }
+  .eyebrow-light {
+    @apply inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-100;
+  }
+  .card {
+    @apply rounded-2xl border border-slate-200/80 bg-white shadow-card;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full bg-teal-50 px-3 py-1.5 text-xs font-semibold text-teal-700;
+  }
+  .chip-muted {
+    @apply inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600;
+  }
+  .alert-error {
+    @apply rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700;
+  }
+  .alert-ok {
+    @apply rounded-lg border border-teal-100 bg-teal-50 px-4 py-3 text-sm text-teal-800;
+  }
+  .score-track {
+    @apply h-2 overflow-hidden rounded-full bg-slate-100;
+  }
+  .score-fill {
+    @apply h-full rounded-full bg-gradient-to-r from-teal to-sky-500;
+  }
 }
 
-main.bg-ink > section.mx-auto { max-width: 80rem !important; }
+.button-primary, .button-secondary, .button-dark, .button-outline, .button-ghost {
+  min-height: 42px;
+  white-space: nowrap;
+}
 
-.button-primary, .button-secondary, .button-dark, .button-outline { min-height: 42px; white-space: nowrap; }
+.hero-grid {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(15, 157, 154, 0.18), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(59, 130, 246, 0.12), transparent),
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: auto, auto, 48px 48px, 48px 48px;
+}
 
-main.bg-ink > section.mx-auto > .button-secondary + .eyebrow { margin-left: 1rem; vertical-align: middle; }
+.sidebar-link {
+  @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-300 transition;
+}
+.sidebar-link:hover { @apply bg-white/10 text-white; }
+.sidebar-link.active {
+  @apply bg-teal text-white shadow-sm;
+}

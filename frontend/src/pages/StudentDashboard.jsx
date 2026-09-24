@@ -1,14 +1,58 @@
-import { ArrowRight, BriefcaseBusiness, FileText, LogOut, UserRound } from 'lucide-react'
+import { ArrowRight, BriefcaseBusiness, FileText, UserRound } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import AppShell from '../components/AppShell'
+import { StatCard } from '../components/ui'
 import api from '../services/api'
 
 function StudentDashboard({ onLogout }) {
   const [dashboard, setDashboard] = useState(null)
   const [error, setError] = useState('')
-  useEffect(() => { api.get('/student/dashboard').then((response) => setDashboard(response.data)).catch((requestError) => setError(requestError.response?.data?.error || 'Unable to load dashboard data.')) }, [])
-  function logout() { localStorage.removeItem('smart-campus-token'); localStorage.removeItem('smart-campus-user'); onLogout() }
-  return <main className="min-h-screen bg-ink px-6 py-6 text-white lg:px-10"><header className="mx-auto flex max-w-7xl items-center justify-between border-b border-white/10 pb-6"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-lime text-ink"><UserRound size={21} /></span><span className="font-display font-bold">Smart Campus</span></div><button className="button-secondary gap-2 px-3 py-2" onClick={logout}><LogOut size={15} /> Log out</button></header><section className="mx-auto max-w-7xl py-12">{error && <p className="rounded-lg border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200">{error}</p>}{!dashboard && !error && <p className="text-white/50">Loading dashboard...</p>}{dashboard && <><p className="eyebrow">Student workspace</p><h1 className="mt-4 font-display text-4xl font-bold">Welcome back, {dashboard.student.name.split(' ')[0]}.</h1><p className="mt-4 max-w-2xl leading-7 text-white/55">Your profile and resume power the matching engine. Keep them current to improve your recommendations.</p><div className="mt-10 grid gap-4 sm:grid-cols-3"><Metric icon={<UserRound size={18} />} label="Profile completion" value={`${dashboard.profile_completion}%`} /><Metric icon={<BriefcaseBusiness size={18} />} label="Eligible recommendations" value={dashboard.recommended_jobs} /><Metric icon={<FileText size={18} />} label="Applications" value={dashboard.applications} /></div><div className="mt-10 grid gap-4 sm:grid-cols-2"><Action href="/student/profile" title="Update profile" text="Edit your academic and career details." /><Action href="/student/recommendations" title="Explore recommendations" text="See roles ranked against your profile." /><Action href="/student/resume" title="Analyze resume" text={dashboard.resume_uploaded ? 'Resume text is available to the model.' : 'Upload a PDF resume to add context.'} /></div></>}</section></main>
+
+  useEffect(() => {
+    api.get('/student/dashboard')
+      .then((response) => setDashboard(response.data))
+      .catch((requestError) => setError(requestError.response?.data?.error || 'Unable to load dashboard data.'))
+  }, [])
+
+  function logout() {
+    localStorage.removeItem('smart-campus-token')
+    localStorage.removeItem('smart-campus-user')
+    onLogout()
+  }
+
+  return (
+    <AppShell role="student" active="dashboard" onLogout={logout} subtitle="Student workspace" title={dashboard ? `Welcome back, ${dashboard.student.name.split(' ')[0]}.` : 'Student overview'}>
+      {error && <p className="alert-error">{error}</p>}
+      {!dashboard && !error && <p className="text-slate-500">Loading dashboard...</p>}
+      {dashboard && (
+        <>
+          <p className="mb-8 max-w-2xl text-slate-500">Your profile and resume are the features the ranking model uses. Keep them current to improve recommendations.</p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <StatCard icon={<UserRound size={18} />} label="Profile completion" value={`${dashboard.profile_completion}%`} />
+            <StatCard icon={<BriefcaseBusiness size={18} />} label="Eligible recommendations" value={dashboard.recommended_jobs} hint="After filters" />
+            <StatCard icon={<FileText size={18} />} label="Applications" value={dashboard.applications} />
+          </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <Action href="/student/profile" title="Update profile" text="Academic details, skills, and preferences." />
+            <Action href="/student/recommendations" title="Explore recommendations" text="Roles ranked against your current signal." />
+            <Action href="/student/resume" title="Analyze resume" text={dashboard.resume_uploaded ? 'Resume text is already available to the model.' : 'Upload a PDF resume to add NLP context.'} />
+          </div>
+        </>
+      )}
+    </AppShell>
+  )
 }
-function Metric({ icon, label, value }) { return <article className="rounded-2xl border border-white/10 bg-panel p-5"><span className="text-lime">{icon}</span><p className="mt-5 text-sm text-white/45">{label}</p><p className="mt-1 font-display text-2xl font-bold">{value}</p></article> }
-function Action({ href, title, text }) { return <a className="group rounded-2xl border border-white/10 bg-panel p-6 transition hover:border-lime/30" href={href}><div className="flex items-center justify-between"><h2 className="font-display text-xl font-bold">{title}</h2><ArrowRight className="text-lime transition group-hover:translate-x-1" size={18} /></div><p className="mt-3 leading-7 text-white/45">{text}</p></a> }
+
+function Action({ href, title, text }) {
+  return (
+    <a className="group card p-6 transition hover:-translate-y-0.5 hover:shadow-lift" href={href}>
+      <div className="flex items-start justify-between gap-3">
+        <h2 className="font-display text-lg font-bold text-navy">{title}</h2>
+        <ArrowRight className="mt-0.5 shrink-0 text-teal transition group-hover:translate-x-1" size={18} />
+      </div>
+      <p className="mt-3 text-sm leading-6 text-slate-500">{text}</p>
+    </a>
+  )
+}
+
 export default StudentDashboard
