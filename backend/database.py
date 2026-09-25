@@ -53,6 +53,25 @@ CREATE TABLE IF NOT EXISTS matching_results (
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
     FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE
 );
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    role VARCHAR(20) NOT NULL, user_id INT NOT NULL,
+    title VARCHAR(200) NOT NULL, message TEXT NOT NULL,
+    link VARCHAR(255) NULL, is_read TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS interviews (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    job_id INT NOT NULL, student_id INT NOT NULL, recruiter_id INT NOT NULL,
+    scheduled_at DATETIME NOT NULL, mode VARCHAR(50) NOT NULL DEFAULT 'Online',
+    meeting_link VARCHAR(255) NULL, location VARCHAR(200) NULL, notes TEXT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'Scheduled',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_interview (job_id, student_id),
+    FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (recruiter_id) REFERENCES recruiters(id) ON DELETE CASCADE
+);
 """
 
 
@@ -117,7 +136,7 @@ def initialize_database() -> None:
 
 
 def table_counts() -> dict[str, int]:
-    table_names = ('students', 'recruiters', 'jobs', 'applications', 'matching_results')
+    table_names = ('students', 'recruiters', 'jobs', 'applications', 'matching_results', 'notifications', 'interviews')
     with get_connection() as connection:
         return {
             table_name: connection.execute(f'SELECT COUNT(*) AS total FROM {table_name}').fetchone()['total']

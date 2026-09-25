@@ -8,11 +8,17 @@ try:
     from .routes.auth_routes import auth_bp
     from .routes.student_routes import student_bp
     from .routes.job_routes import job_bp
+    from .routes.notification_routes import notification_bp
+    from .routes.interview_routes import interview_bp
+    from .routes.analytics_routes import analytics_bp
 except ImportError:
     from database import initialize_database
     from routes.auth_routes import auth_bp
     from routes.student_routes import student_bp
     from routes.job_routes import job_bp
+    from routes.notification_routes import notification_bp
+    from routes.interview_routes import interview_bp
+    from routes.analytics_routes import analytics_bp
 
 
 def create_app() -> Flask:
@@ -25,6 +31,9 @@ def create_app() -> Flask:
     app.register_blueprint(auth_bp)
     app.register_blueprint(student_bp)
     app.register_blueprint(job_bp)
+    app.register_blueprint(notification_bp)
+    app.register_blueprint(interview_bp)
+    app.register_blueprint(analytics_bp)
 
     @app.get('/api/health')
     def health_check():

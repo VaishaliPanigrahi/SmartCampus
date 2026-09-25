@@ -7,11 +7,13 @@ try:
     from ..ml.eligibility import check_eligibility
     from ..ml.matching import calculate_match
     from .auth_routes import require_auth
+    from .notification_routes import create_notification
 except ImportError:
     from database import get_connection
     from ml.eligibility import check_eligibility
     from ml.matching import calculate_match
     from routes.auth_routes import require_auth
+    from routes.notification_routes import create_notification
 
 
 job_bp = Blueprint('jobs', __name__, url_prefix='/api')
@@ -137,6 +139,12 @@ def apply_for_job(job_id):
                 "INSERT INTO applications (student_id, job_id, status) VALUES (?, ?, 'Applied')",
                 (g.current_user['user_id'], job_id),
             )
+            create_notification(
+                connection, 'recruiter', job['recruiter_id'],
+                f'New application — {job["job_title"]}',
+                f'{student["name"]} applied for your {job["job_title"]} role.',
+                f'/recruiter/jobs/{job_id}/candidates',
+            )
             connection.commit()
         except mysql.connector.Error as error:
             if error.errno != 1062:
@@ -238,12 +246,14 @@ def ranked_candidates(job_id):
         ).fetchone()
         students = connection.execute(
             """
-            SELECT students.*, applications.status AS application_status
+            SELECT students.*, applications.status AS application_status,
+                   interviews.scheduled_at AS interview_at, interviews.mode AS interview_mode
             FROM students
             LEFT JOIN applications ON applications.student_id = students.id AND applications.job_id = ?
+            LEFT JOIN interviews ON interviews.student_id = students.id AND interviews.job_id = ?
             ORDER BY students.id
             """,
-            (job_id,),
+            (job_id, job_id),
         ).fetchall()
     if job is None:
         return jsonify({'error': 'Job not found or not owned by this recruiter.'}), 404
@@ -267,6 +277,8 @@ def ranked_candidates(job_id):
             'certifications': student['certifications'],
             'resume_uploaded': bool(student['resume_path']),
             'application_status': student['application_status'],
+            'interview_at': student['interview_at'].isoformat() if student['interview_at'] else None,
+            'interview_mode': student['interview_mode'],
             'eligible': True,
             'eligibility_reasons': reasons,
             **match,
@@ -284,7 +296,7 @@ def shortlist_candidate(job_id, student_id):
 
     with get_connection() as connection:
         job = connection.execute(
-            'SELECT id FROM jobs WHERE id = ? AND recruiter_id = ?',
+            'SELECT id, job_title, company FROM jobs WHERE id = ? AND recruiter_id = ?',
             (job_id, g.current_user['user_id']),
         ).fetchone()
         if job is None:
@@ -306,6 +318,62 @@ def shortlist_candidate(job_id, student_id):
             "UPDATE applications SET status = 'Shortlisted' WHERE id = ?",
             (application['id'],),
         )
+        create_notification(
+            connection, 'student', student_id,
+            f'Shortlisted — {job["job_title"]}',
+            f'Congratulations! You have been shortlisted for the {job["job_title"]} role at {job["company"]}.',
+            '/student/applications',
+        )
         connection.commit()
 
     return jsonify({'message': 'Candidate shortlisted successfully.', 'status': 'Shortlisted'}), 200
+
+
+STATUS_NOTIFICATIONS = {
+    'Shortlisted': ('Shortlisted — {title}', 'Congratulations! You have been shortlisted for the {title} role at {company}.'),
+    'Interview': ('Interview stage — {title}', 'Your application for {title} at {company} has moved to the interview stage.'),
+    'Offer': ('Offer — {title}', 'Great news! You have received an offer for the {title} role at {company}.'),
+    'Rejected': ('Application update — {title}', 'Your application for {title} at {company} was not selected this time.'),
+}
+
+
+@job_bp.post('/jobs/<int:job_id>/candidates/<int:student_id>/status')
+@require_auth
+def update_candidate_status(job_id, student_id):
+    blocked = recruiter_only()
+    if blocked:
+        return blocked
+
+    payload = request.get_json(silent=True) or {}
+    status = str(payload.get('status', '')).strip()
+    if status not in STATUS_NOTIFICATIONS:
+        return jsonify({'error': 'Status must be one of Shortlisted, Interview, Offer, or Rejected.'}), 400
+
+    with get_connection() as connection:
+        job = connection.execute(
+            'SELECT id, job_title, company FROM jobs WHERE id = ? AND recruiter_id = ?',
+            (job_id, g.current_user['user_id']),
+        ).fetchone()
+        if job is None:
+            return jsonify({'error': 'Job not found or not owned by this recruiter.'}), 404
+
+        application = connection.execute(
+            'SELECT id, status FROM applications WHERE student_id = ? AND job_id = ?',
+            (student_id, job_id),
+        ).fetchone()
+        if application is None:
+            return jsonify({'error': 'A candidate must apply before their status can be changed.'}), 400
+        if application['status'] == status:
+            return jsonify({'message': 'Status unchanged.', 'status': status}), 200
+
+        title, message = STATUS_NOTIFICATIONS[status]
+        connection.execute('UPDATE applications SET status = ? WHERE id = ?', (status, application['id']))
+        create_notification(
+            connection, 'student', student_id,
+            title.format(title=job['job_title']),
+            message.format(title=job['job_title'], company=job['company']),
+            '/student/applications',
+        )
+        connection.commit()
+
+    return jsonify({'message': 'Application status updated.', 'status': status}), 200

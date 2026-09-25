@@ -1,23 +1,24 @@
-import { ArrowRight, BarChart3, Check, FileText, Filter, Menu, Network, Sparkles, Target, Users, X } from 'lucide-react'
+import { ArrowRight, BarChart3, Filter, Menu, Network, Sparkles, Target, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Logo from './components/Logo'
 import Applications from './pages/Applications'
+import AuthPage from './pages/AuthPage'
 import CandidateRanking from './pages/CandidateRanking'
 import JobDetails from './pages/JobDetails'
-import LoginPage from './pages/LoginPage'
+import Notifications from './pages/Notifications'
 import PostJob from './pages/PostJob'
 import RecommendedJobs from './pages/RecommendedJobs'
-import RegisterPage from './pages/RegisterPage'
 import RecruiterDashboard from './pages/RecruiterDashboard'
+import RecruiterInterviews from './pages/RecruiterInterviews'
 import ResumePage from './pages/ResumePage'
 import StudentDashboard from './pages/StudentDashboard'
+import StudentInterviews from './pages/StudentInterviews'
 import StudentProfile from './pages/StudentProfile'
 
-const pipeline = [
-  { icon: FileText, label: 'Student signals', detail: 'Profile, CGPA, resume text' },
-  { icon: Filter, label: 'Eligibility filter', detail: 'Department, year, minimum CGPA' },
-  { icon: Network, label: 'NLP scoring', detail: 'TF-IDF + semantic similarity' },
-  { icon: Target, label: 'Ranked fit', detail: 'Explainable match percentages' },
+const steps = [
+  { icon: Filter, label: 'Eligibility filter', detail: 'Department, graduation year, and minimum CGPA gate every role before scoring.' },
+  { icon: Network, label: 'NLP scoring', detail: 'TF-IDF captures keyword overlap; semantic similarity captures meaning.' },
+  { icon: Target, label: 'Ranked, explainable fit', detail: 'A final score with matched skills and the transparent 70/30 blend.' },
 ]
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
   function goTo(path) {
     window.history.pushState({}, '', path)
     setRoute(path)
+    setMenuOpen(false)
     window.scrollTo(0, 0)
   }
 
@@ -57,19 +59,23 @@ function App() {
     return Boolean(token && user?.role === role)
   }
 
-  const login = (user) => goTo(user.role === 'student' ? '/student/dashboard' : '/recruiter/dashboard')
-  if (route === '/login') return <LoginPage onBack={goHome} onLogin={login} />
-  if (route === '/register') return <RegisterPage onBack={goHome} onRegistered={login} />
-  if (route.startsWith('/student/') && !isAllowed('student')) return <LoginPage onBack={goHome} onLogin={login} />
-  if (route.startsWith('/recruiter/') && !isAllowed('recruiter')) return <LoginPage onBack={goHome} onLogin={login} />
+  const onAuth = (user) => goTo(user.role === 'student' ? '/student/dashboard' : '/recruiter/dashboard')
+  if (route === '/login') return <AuthPage mode="login" onBack={goHome} onAuth={onAuth} />
+  if (route === '/register') return <AuthPage mode="register" onBack={goHome} onAuth={onAuth} />
+  if (route.startsWith('/student/') && !isAllowed('student')) return <AuthPage mode="login" onBack={goHome} onAuth={onAuth} />
+  if (route.startsWith('/recruiter/') && !isAllowed('recruiter')) return <AuthPage mode="login" onBack={goHome} onAuth={onAuth} />
   if (route === '/student/dashboard') return <StudentDashboard onLogout={goHome} />
   if (route === '/student/profile') return <StudentProfile onLogout={goHome} />
   if (route === '/student/resume') return <ResumePage onBack={() => goTo('/student/profile')} onLogout={goHome} />
   if (route === '/student/recommendations') return <RecommendedJobs onBack={() => goTo('/student/profile')} onLogout={goHome} />
   if (route === '/student/applications') return <Applications onBack={() => goTo('/student/profile')} onLogout={goHome} />
+  if (route === '/student/interviews') return <StudentInterviews onLogout={goHome} />
+  if (route === '/student/notifications') return <Notifications role="student" onNavigate={goTo} onLogout={goHome} />
   if (route.startsWith('/student/job/')) return <JobDetails jobId={route.split('/').pop()} onBack={() => goTo('/student/recommendations')} onLogout={goHome} />
   if (route === '/recruiter/dashboard') return <RecruiterDashboard onLogout={goHome} />
   if (route === '/recruiter/post-job') return <PostJob onBack={() => goTo('/recruiter/dashboard')} onNavigate={goTo} onLogout={goHome} />
+  if (route === '/recruiter/interviews') return <RecruiterInterviews onLogout={goHome} />
+  if (route === '/recruiter/notifications') return <Notifications role="recruiter" onNavigate={goTo} onLogout={goHome} />
   if (route.startsWith('/recruiter/jobs/') && route.endsWith('/candidates')) return <CandidateRanking jobId={route.split('/')[3]} onBack={() => goTo('/recruiter/dashboard')} onLogout={goHome} />
 
   return <LandingPage menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
@@ -84,18 +90,16 @@ function LandingPage({ menuOpen, setMenuOpen }) {
           <button className="rounded-lg border border-white/15 p-2 md:hidden" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle navigation">
             {menuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
-          <div className={`${menuOpen ? 'absolute left-6 right-6 top-20 flex' : 'hidden'} flex-col gap-4 rounded-2xl border border-white/10 bg-navy-800 p-5 shadow-lift md:static md:flex md:flex-row md:items-center md:gap-8 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}>
-            <a className="nav-link" href="#pipeline">Pipeline</a>
-            <a className="nav-link" href="#method">Method</a>
-            <a className="nav-link" href="/login">Log in</a>
-            <a className="button-primary" href="/register">Get started <ArrowRight size={16} /></a>
+          <div className={`${menuOpen ? 'absolute left-6 right-6 top-20 flex' : 'hidden'} flex-col gap-3 rounded-2xl border border-white/10 bg-navy-800 p-5 shadow-lift md:static md:flex md:flex-row md:items-center md:gap-4 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}>
+            <a className="button-secondary md:px-4 md:py-2" href="/login">Log in</a>
+            <a className="button-primary md:px-5 md:py-2" href="/register">Get started <ArrowRight size={16} /></a>
           </div>
         </nav>
 
         <section className="relative mx-auto grid max-w-6xl gap-12 px-6 pb-20 pt-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:pb-24 lg:pt-16">
           <div>
-            <p className="eyebrow-light"><Sparkles size={13} /> Third-year data science prototype</p>
-            <h1 className="mt-5 max-w-xl font-display text-[clamp(2.4rem,5vw,4.4rem)] font-extrabold leading-[1.05] tracking-tight">
+            <p className="eyebrow-light"><Sparkles size={13} /> AI campus recruitment</p>
+            <h1 className="mt-5 max-w-xl font-display text-[clamp(2.4rem,5vw,4.2rem)] font-extrabold leading-[1.05] tracking-tight">
               Transparent student–job matching for campus recruitment.
             </h1>
             <p className="mt-6 max-w-lg text-base leading-7 text-slate-300 sm:text-lg">
@@ -103,7 +107,7 @@ function LandingPage({ menuOpen, setMenuOpen }) {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a className="button-primary px-5 py-3" href="/register">Create an account <ArrowRight size={16} /></a>
-              <a className="button-secondary px-5 py-3" href="#pipeline">View the pipeline</a>
+              <a className="button-secondary px-5 py-3" href="/login">Log in</a>
             </div>
             <div className="mt-10 grid max-w-lg grid-cols-3 gap-4 border-t border-white/10 pt-6">
               <MiniStat value="70/30" label="Semantic / TF-IDF" />
@@ -121,12 +125,12 @@ function LandingPage({ menuOpen, setMenuOpen }) {
               <span className="rounded-full bg-teal/15 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-teal-100">Live model</span>
             </div>
             <ol className="mt-5 space-y-3">
-              {pipeline.map(({ icon: Icon, label, detail }, index) => (
+              {steps.map(({ icon: Icon, label, detail }, index) => (
                 <li className="flex gap-4 rounded-xl bg-navy-800/70 p-3.5" key={label}>
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-teal/15 text-teal">{<Icon size={18} />}</span>
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-teal/15 text-teal"><Icon size={18} /></span>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold">{index + 1}. {label}</p>
-                    <p className="mt-0.5 text-xs text-slate-400">{detail}</p>
+                    <p className="mt-0.5 text-xs leading-5 text-slate-400">{detail}</p>
                   </div>
                 </li>
               ))}
@@ -135,37 +139,34 @@ function LandingPage({ menuOpen, setMenuOpen }) {
         </section>
       </header>
 
-      <section id="pipeline" className="bg-canvas px-6 py-20 text-ink lg:px-8">
+      <section className="bg-canvas px-6 py-20 text-ink lg:px-8">
         <div className="mx-auto max-w-6xl">
-          <p className="eyebrow">How the system works</p>
-          <div className="mt-3 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <h2 className="max-w-xl font-display text-3xl font-extrabold text-navy sm:text-4xl">Eligibility first. Then NLP ranking.</h2>
-            <p className="max-w-sm text-sm leading-6 text-slate-500">Hard filters protect fairness. Soft scores surface the best remaining matches for students and recruiters.</p>
-          </div>
+          <p className="eyebrow">Two workspaces</p>
+          <h2 className="mt-3 max-w-2xl font-display text-3xl font-extrabold text-navy sm:text-4xl">Built for students and recruiters.</h2>
           <div className="mt-10 grid gap-4 md:grid-cols-2">
             <a className="group card p-8 transition hover:-translate-y-0.5 hover:shadow-lift" href="/register">
-              <span className="font-mono text-xs font-semibold text-teal">01 · Students</span>
-              <h3 className="mt-10 font-display text-2xl font-bold text-navy">Discover ranked opportunities</h3>
-              <p className="mt-3 max-w-sm leading-7 text-slate-500">Build an academic profile, upload a resume, and inspect match scores with TF-IDF and semantic breakdowns.</p>
-              <span className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-teal">Enter student workspace <ArrowRight className="transition group-hover:translate-x-1" size={16} /></span>
+              <span className="font-mono text-xs font-semibold text-teal">Students</span>
+              <h3 className="mt-6 font-display text-2xl font-bold text-navy">Discover ranked opportunities</h3>
+              <p className="mt-3 max-w-sm leading-7 text-slate-500">Build an academic profile, upload a resume, apply to roles, and track interviews and notifications in one place.</p>
+              <span className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-teal">Create a student account <ArrowRight className="transition group-hover:translate-x-1" size={16} /></span>
             </a>
             <a className="group overflow-hidden rounded-2xl bg-navy p-8 text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-lift" href="/register">
-              <span className="font-mono text-xs font-semibold text-teal">02 · Recruiters</span>
-              <h3 className="mt-10 font-display text-2xl font-bold">Rank eligible campus talent</h3>
-              <p className="mt-3 max-w-sm leading-7 text-slate-300">Post a focused role, apply department and CGPA constraints, then shortlist candidates by transparent model scores.</p>
-              <span className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-teal">Enter recruiter workspace <ArrowRight className="transition group-hover:translate-x-1" size={16} /></span>
+              <span className="font-mono text-xs font-semibold text-teal">Recruiters</span>
+              <h3 className="mt-6 font-display text-2xl font-bold">Rank eligible campus talent</h3>
+              <p className="mt-3 max-w-sm leading-7 text-slate-300">Post a focused role, apply department and CGPA constraints, shortlist candidates, and schedule interviews by transparent model scores.</p>
+              <span className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-teal">Create a recruiter account <ArrowRight className="transition group-hover:translate-x-1" size={16} /></span>
             </a>
           </div>
         </div>
       </section>
 
-      <section id="method" className="border-t border-slate-200 bg-white px-6 py-20 lg:px-8">
+      <section className="border-t border-slate-200 bg-white px-6 py-20 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <p className="eyebrow">Research method</p>
           <h2 className="mt-3 max-w-2xl font-display text-3xl font-extrabold text-navy sm:text-4xl">A matching engine you can defend in a viva.</h2>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
-            <Feature icon={<Users size={18} />} title="Structured student features" text="Skills, projects, CGPA, department, and preferred role become the primary matching context." />
-            <Feature icon={<BarChart3 size={18} />} title="Two similarity lenses" text="Lexical TF-IDF captures keyword overlap. Semantic similarity captures meaning beyond exact terms." />
+            <Feature icon={<BarChart3 size={18} />} title="Structured student features" text="Skills, projects, CGPA, department, and preferred role become the primary matching context." />
+            <Feature icon={<Network size={18} />} title="Two similarity lenses" text="Lexical TF-IDF captures keyword overlap. Semantic similarity captures meaning beyond exact terms." />
             <Feature icon={<Target size={18} />} title="Explainable output" text="Each recommendation shows a final score, matched skills, and the 70/30 model blend." />
           </div>
         </div>

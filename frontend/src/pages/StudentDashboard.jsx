@@ -1,17 +1,22 @@
-import { ArrowRight, BriefcaseBusiness, FileText, UserRound } from 'lucide-react'
+import { ArrowRight, BriefcaseBusiness, CalendarDays, FileText, UserRound } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import AppShell from '../components/AppShell'
+import { FunnelChart, TrendChart } from '../components/AnalyticsCharts'
 import { StatCard } from '../components/ui'
 import api from '../services/api'
 
 function StudentDashboard({ onLogout }) {
   const [dashboard, setDashboard] = useState(null)
+  const [analytics, setAnalytics] = useState(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
     api.get('/student/dashboard')
       .then((response) => setDashboard(response.data))
       .catch((requestError) => setError(requestError.response?.data?.error || 'Unable to load dashboard data.'))
+    api.get('/student/analytics')
+      .then((response) => setAnalytics(response.data))
+      .catch(() => { /* analytics are supplementary; the dashboard still renders without them */ })
   }, [])
 
   function logout() {
@@ -27,11 +32,18 @@ function StudentDashboard({ onLogout }) {
       {dashboard && (
         <>
           <p className="mb-8 max-w-2xl text-slate-500">Your profile and resume are the features the ranking model uses. Keep them current to improve recommendations.</p>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard icon={<UserRound size={18} />} label="Profile completion" value={`${dashboard.profile_completion}%`} />
             <StatCard icon={<BriefcaseBusiness size={18} />} label="Eligible recommendations" value={dashboard.recommended_jobs} hint="After filters" />
             <StatCard icon={<FileText size={18} />} label="Applications" value={dashboard.applications} />
+            <StatCard icon={<CalendarDays size={18} />} label="Upcoming interviews" value={analytics?.upcoming_interviews ?? 0} />
           </div>
+          {analytics && (
+            <div className="mt-6 grid gap-4 lg:grid-cols-2">
+              <FunnelChart data={analytics.funnel} />
+              <TrendChart data={analytics.timeline} title="Applications over time" subtitle="When you submitted applications" label="Applications" />
+            </div>
+          )}
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             <Action href="/student/profile" title="Update profile" text="Academic details, skills, and preferences." />
             <Action href="/student/recommendations" title="Explore recommendations" text="Roles ranked against your current signal." />

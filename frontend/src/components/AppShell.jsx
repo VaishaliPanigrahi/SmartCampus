@@ -1,5 +1,7 @@
 import {
+  Bell,
   BriefcaseBusiness,
+  CalendarDays,
   FileText,
   LayoutDashboard,
   LogOut,
@@ -9,6 +11,7 @@ import {
   UserRound,
 } from 'lucide-react'
 import Logo from './Logo'
+import NotificationBell from './NotificationBell'
 
 const studentNav = [
   { href: '/student/dashboard', id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -16,11 +19,16 @@ const studentNav = [
   { href: '/student/resume', id: 'resume', label: 'Resume analysis', icon: FileText },
   { href: '/student/recommendations', id: 'recommendations', label: 'Recommendations', icon: Sparkles },
   { href: '/student/applications', id: 'applications', label: 'Applications', icon: BriefcaseBusiness },
+  { href: '/student/interviews', id: 'interviews', label: 'Interviews', icon: CalendarDays },
+  { href: '/student/notifications', id: 'notifications', label: 'Notifications', icon: Bell },
 ]
 
 const recruiterNav = [
   { href: '/recruiter/dashboard', id: 'jobs', label: 'Job board', icon: BriefcaseBusiness },
+  { href: '/recruiter/dashboard', id: 'candidates', label: 'Candidate ranking', icon: Trophy },
   { href: '/recruiter/post-job', id: 'post-job', label: 'Post a role', icon: Plus },
+  { href: '/recruiter/interviews', id: 'interviews', label: 'Interviews', icon: CalendarDays },
+  { href: '/recruiter/notifications', id: 'notifications', label: 'Notifications', icon: Bell },
 ]
 
 function AppShell({ role = 'student', active, onLogout, title, subtitle, children, extra }) {
@@ -41,11 +49,6 @@ function AppShell({ role = 'student', active, onLogout, title, subtitle, childre
               <Icon size={17} /> {label}
             </a>
           ))}
-          {role === 'recruiter' && active === 'candidates' && (
-            <span className="sidebar-link active shrink-0">
-              <Trophy size={17} /> Candidate ranking
-            </span>
-          )}
         </nav>
         <div className="hidden border-t border-white/10 p-4 lg:block">
           <p className="truncate text-sm font-semibold">{user?.name || 'Signed in'}</p>
@@ -64,6 +67,7 @@ function AppShell({ role = 'student', active, onLogout, title, subtitle, childre
           </div>
           <div className="flex items-center gap-2">
             {extra}
+            <NotificationBell role={role} />
             <button className="button-ghost lg:hidden" onClick={onLogout}><LogOut size={15} /> Log out</button>
           </div>
         </header>
